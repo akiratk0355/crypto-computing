@@ -126,23 +126,23 @@ func main() {
 	y, _ := strconv.ParseUint(os.Args[2], 10, 64)
 
 	// Initialize parties
-	d := Dealer{}
-	a := Alice{}
-	b := Bob{}
-	d.Init(secpar)
-	r, Ma := d.RandA()
-	s, Mb := d.RandB()
+	D := Dealer{}
+	A := Alice{}
+	B := Bob{}
+	D.Init(secpar)
+	r, Ma := D.RandA()
+	s, Mb := D.RandB()
 	fmt.Println("Alice received randomness", r)
 	//fmt.Println("Alice received table", Ma)
 	fmt.Println("Bob received randomness", s)
 	//fmt.Println("Bob received table", Mb)
-	a.Init(secpar, x, r, Ma)
-	b.Init(secpar, y, s, Mb)
+	A.Init(secpar, x, r, Ma)
+	B.Init(secpar, y, s, Mb)
 
 	// Run the protocol
-	b.Receive(a.Send())
-	a.Receive(b.Send())
-	z := a.Output()
+	B.Receive(A.Send())
+	A.Receive(B.Send())
+	z := A.Output()
 	fmt.Printf("Securely computed f(%v,%v)=%v\n", x, y, z)
 
 	// Correctness check
