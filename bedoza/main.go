@@ -1,4 +1,4 @@
-// usage: go run main.go <Party's input> <Bob's input>
+// usage: go run main.go <Alice's input> <Bob's input>
 package main
 
 import (
@@ -83,7 +83,7 @@ func (P *Party) Init(triples []Triple, bob bool) {
 	P.isBob = bob
 }
 
-func (A *Party) Input(input int) (int, int, int) {
+func (P *Party) Input(input int) (int, int, int) {
 	x2, x1, x0 := IntBit(input, 2), IntBit(input, 1), IntBit(input, 0)
 	x2bt, _ := rand.Int(rand.Reader, big.NewInt(2))
 	x2b := int(x2bt.Int64())
@@ -91,118 +91,118 @@ func (A *Party) Input(input int) (int, int, int) {
 	x1b := int(x1bt.Int64())
 	x0bt, _ := rand.Int(rand.Reader, big.NewInt(2))
 	x0b := int(x0bt.Int64())
-	if !A.isBob {
-		A.x2 = x2 ^ x2b
-		A.x1 = x1 ^ x1b
-		A.x0 = x0 ^ x0b
+	if !P.isBob {
+		P.x2 = x2 ^ x2b
+		P.x1 = x1 ^ x1b
+		P.x0 = x0 ^ x0b
 	} else {
-		A.y2 = x2 ^ x2b
-		A.y1 = x1 ^ x1b
-		A.y0 = x0 ^ x0b
+		P.y2 = x2 ^ x2b
+		P.y1 = x1 ^ x1b
+		P.y0 = x0 ^ x0b
 	}
 	return x2b, x1b, x0b
 }
 
-func (A *Party) ReceiveInput(input2 int, input1 int, input0 int) {
-	if !A.isBob {
-		A.y2 = input2
-		A.y1 = input1
-		A.y0 = input0
+func (P *Party) ReceiveInput(input2 int, input1 int, input0 int) {
+	if !P.isBob {
+		P.y2 = input2
+		P.y1 = input1
+		P.y0 = input0
 	} else {
-		A.x2 = input2
-		A.x1 = input1
-		A.x0 = input0
+		P.x2 = input2
+		P.x1 = input1
+		P.x0 = input0
 	}
 }
 
-func (A *Party) Phase1() (int, int, int, int, int, int) {
+func (P *Party) Phase1() (int, int, int, int, int, int) {
 	// Compute zi = (xi ^ 1)
-	A.z0 = A.x0
-	A.z1 = A.x1
-	A.z2 = A.x2
-	if !A.isBob {
-		A.z0 = A.z0 ^ 1
-		A.z1 = A.z1 ^ 1
-		A.z2 = A.z2 ^ 1
+	P.z0 = P.x0
+	P.z1 = P.x1
+	P.z2 = P.x2
+	if !P.isBob {
+		P.z0 = P.z0 ^ 1
+		P.z1 = P.z1 ^ 1
+		P.z2 = P.z2 ^ 1
 	}
 	// Compute z0 & y0
-	A.T0, A.triples = A.triples[0], A.triples[1:]
-	A.d0 = A.z0 ^ A.T0.u
-	A.e0 = A.y0 ^ A.T0.v
+	P.T0, P.triples = P.triples[0], P.triples[1:]
+	P.d0 = P.z0 ^ P.T0.u
+	P.e0 = P.y0 ^ P.T0.v
 
 	// Compute z1 & y1
-	A.T1, A.triples = A.triples[0], A.triples[1:]
-	A.d1 = A.z1 ^ A.T1.u
-	A.e1 = A.y1 ^ A.T1.v
+	P.T1, P.triples = P.triples[0], P.triples[1:]
+	P.d1 = P.z1 ^ P.T1.u
+	P.e1 = P.y1 ^ P.T1.v
 
 	// Compute z2 & y2
-	A.T2, A.triples = A.triples[0], A.triples[1:]
-	A.d2 = A.z2 ^ A.T2.u
-	A.e2 = A.y2 ^ A.T2.v
+	P.T2, P.triples = P.triples[0], P.triples[1:]
+	P.d2 = P.z2 ^ P.T2.u
+	P.e2 = P.y2 ^ P.T2.v
 
-	return A.d0, A.e0, A.d1, A.e1, A.d2, A.e2
+	return P.d0, P.e0, P.d1, P.e1, P.d2, P.e2
 }
 
-func (A *Party) Phase2(Bd0 int, Be0 int, Bd1 int, Be1 int, Bd2 int, Be2 int) (int, int) {
+func (P *Party) Phase2(Bd0 int, Be0 int, Bd1 int, Be1 int, Bd2 int, Be2 int) (int, int) {
 	// Finalize zi & yi
-	A.d0 = A.d0 ^ Bd0
-	A.d1 = A.d1 ^ Bd1
-	A.d2 = A.d2 ^ Bd2
-	A.e0 = A.e0 ^ Be0
-	A.e1 = A.e1 ^ Be1
-	A.e2 = A.e2 ^ Be2
+	P.d0 = P.d0 ^ Bd0
+	P.d1 = P.d1 ^ Bd1
+	P.d2 = P.d2 ^ Bd2
+	P.e0 = P.e0 ^ Be0
+	P.e1 = P.e1 ^ Be1
+	P.e2 = P.e2 ^ Be2
 
-	A.z0 = A.T0.w ^ (A.e0 & A.T0.u) ^ (A.d0 & A.T0.v)
-	A.z1 = A.T1.w ^ (A.e1 & A.T1.u) ^ (A.d1 & A.T1.v)
-	A.z2 = A.T2.w ^ (A.e2 & A.T2.u) ^ (A.d2 & A.T2.v)
+	P.z0 = P.T0.w ^ (P.e0 & P.T0.u) ^ (P.d0 & P.T0.v)
+	P.z1 = P.T1.w ^ (P.e1 & P.T1.u) ^ (P.d1 & P.T1.v)
+	P.z2 = P.T2.w ^ (P.e2 & P.T2.u) ^ (P.d2 & P.T2.v)
 
-	if !A.isBob {
-		A.z0 = A.z0 ^ (A.d0 & A.e0)
-		A.z1 = A.z1 ^ (A.d1 & A.e1)
-		A.z2 = A.z2 ^ (A.d2 & A.e2)
+	if !P.isBob {
+		P.z0 = P.z0 ^ (P.d0 & P.e0)
+		P.z1 = P.z1 ^ (P.d1 & P.e1)
+		P.z2 = P.z2 ^ (P.d2 & P.e2)
 	}
 
 	// Compute zi ^ 1
-	if !A.isBob {
-		A.z0 = A.z0 ^ 1
-		A.z1 = A.z1 ^ 1
-		A.z2 = A.z2 ^ 1
+	if !P.isBob {
+		P.z0 = P.z0 ^ 1
+		P.z1 = P.z1 ^ 1
+		P.z2 = P.z2 ^ 1
 	}
 
 	// Compute z0 & z1
-	A.T0, A.triples = A.triples[0], A.triples[1:]
-	A.d0 = A.z0 ^ A.T0.u
-	A.e0 = A.z1 ^ A.T0.v
+	P.T0, P.triples = P.triples[0], P.triples[1:]
+	P.d0 = P.z0 ^ P.T0.u
+	P.e0 = P.z1 ^ P.T0.v
 
-	return A.d0, A.e0
+	return P.d0, P.e0
 }
 
-func (A *Party) Phase3(Bd0 int, Be0 int) (int, int) {
+func (P *Party) Phase3(Bd0 int, Be0 int) (int, int) {
 	// Finalize z0 & z1
-	A.d0 = A.d0 ^ Bd0
-	A.e0 = A.e0 ^ Be0
-	A.z0 = A.T0.w ^ (A.e0 & A.T0.u) ^ (A.d0 & A.T0.v)
-	if !A.isBob {
-		A.z0 = A.z0 ^ (A.d0 & A.e0)
+	P.d0 = P.d0 ^ Bd0
+	P.e0 = P.e0 ^ Be0
+	P.z0 = P.T0.w ^ (P.e0 & P.T0.u) ^ (P.d0 & P.T0.v)
+	if !P.isBob {
+		P.z0 = P.z0 ^ (P.d0 & P.e0)
 	}
 
 	// Compute z0 & z2
-	A.T0, A.triples = A.triples[0], A.triples[1:]
-	A.d0 = A.z0 ^ A.T0.u
-	A.e0 = A.z2 ^ A.T0.v
+	P.T0, P.triples = P.triples[0], P.triples[1:]
+	P.d0 = P.z0 ^ P.T0.u
+	P.e0 = P.z2 ^ P.T0.v
 
-	return A.d0, A.e0
+	return P.d0, P.e0
 }
 
-func (A *Party) Phase4(Bd0 int, Be0 int) int {
+func (P *Party) Phase4(Bd0 int, Be0 int) int {
 	// Finalize z0 & z2
-	A.d0 = A.d0 ^ Bd0
-	A.e0 = A.e0 ^ Be0
-	A.z0 = A.T0.w ^ (A.e0 & A.T0.u) ^ (A.d0 & A.T0.v)
-	if !A.isBob {
-		A.z0 = A.z0 ^ (A.d0 & A.e0)
+	P.d0 = P.d0 ^ Bd0
+	P.e0 = P.e0 ^ Be0
+	P.z0 = P.T0.w ^ (P.e0 & P.T0.u) ^ (P.d0 & P.T0.v)
+	if !P.isBob {
+		P.z0 = P.z0 ^ (P.d0 & P.e0)
 	}
-	return A.z0
+	return P.z0
 }
 
 func main() {
