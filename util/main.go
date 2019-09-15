@@ -36,7 +36,8 @@ func LookupBloodTable(i int, j int) byte {
 func ComputeBloodCompatibility(x int, y int) byte {
 	x2, x1, x0 := IntBit(x, 2), IntBit(x, 1), IntBit(x, 0)
 	y2, y1, y0 := IntBit(y, 2), IntBit(y, 1), IntBit(y, 0)
-	return ((x2 | ((x2 ^ 1) & (y2 ^ 1))) & ((x1 & y1 & (y0 ^ 1)) | (x0 & y0 & (y1 ^ 1)) | ((y0 ^ 1) & (y1 ^ 1)) | (x0 & x1)))
+	//return ((x2 | ((x2 ^ 1) & (y2 ^ 1))) & ((x1 & y1 & (y0 ^ 1)) | (x0 & y0 & (y1 ^ 1)) | ((y0 ^ 1) & (y1 ^ 1)) | (x0 & x1)))
+	return (1 ^ (y0 & (1 ^ x0))) & (1 ^ (y1 & (1 ^ x1))) & (1 ^ (y2 & (1 ^ x2)))
 }
 
 func main() {
