@@ -51,7 +51,7 @@ qstr = """
 gstr = "02"
 
 # 2 encodes f(x,y)=0, and 4 encodes f(x,y)=1
-# Both elements are chosen apprpeter.schollopriately so that they belong to an order q cyclic group <g>.
+# Both elements are chosen appropriately so that they belong to an order q cyclic group <g>.
 msg_encoding = (2,4)
 
 class PublicParameter:
